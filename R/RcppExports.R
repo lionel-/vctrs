@@ -5,3 +5,7 @@ combine <- function(x1, x2) {
     .Call('vctrs_combine', PACKAGE = 'vctrs', x1, x2)
 }
 
+mk_string <- function(x) {
+    .Call('vctrs_mk_string', PACKAGE = 'vctrs', x)
+}
+

@@ -10,4 +10,9 @@
 #include <vctrs/vctr_factory.h>
 #include <vctrs/types.h>
 
+#include <alt/utils.h>
+#include <alt/types.h>
+#include <alt/coercion.h>
+#include <alt/vector.h>
+
 #endif // VCTRS_VCTRS_H
