@@ -5,6 +5,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 // Vector types -------------------------------------------------
 
 enum vctrs_type {
@@ -52,3 +57,8 @@ void growable_init(growable* g, SEXPTYPE type, int capacity);
 void growable_free(growable* g);
 void growable_push_int(growable* g, int i);
 SEXP growable_values(growable* g);
+
+
+#ifdef __cplusplus
+} // extern "C"
+#endif

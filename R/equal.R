@@ -91,6 +91,29 @@ vec_equal_no_branch <- function(x, y, na_equal = FALSE, .ptype = NULL) {
 }
 
 #' @export
+vec_equal_template <- function(x, y, na_equal = FALSE, .ptype = NULL) {
+  args <- vec_recycle_common(x, y)
+  args <- vec_cast_common(!!!args, .to = .ptype)
+  .Call(
+    vctrs_equal_template,
+    vec_proxy_equal(args[[1]]),
+    vec_proxy_equal(args[[2]]),
+    na_equal
+  )
+}
+#' @export
+vec_equal_template_full <- function(x, y, na_equal = FALSE, .ptype = NULL) {
+  args <- vec_recycle_common(x, y)
+  args <- vec_cast_common(!!!args, .to = .ptype)
+  .Call(
+    vctrs_equal_template_full,
+    vec_proxy_equal(args[[1]]),
+    vec_proxy_equal(args[[2]]),
+    na_equal
+  )
+}
+
+#' @export
 #' @rdname vec_equal
 vec_equal_na <- function(x) {
   x <- vec_proxy_equal(x)
