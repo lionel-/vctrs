@@ -68,6 +68,29 @@ vec_equal <- function(x, y, na_equal = FALSE, .ptype = NULL) {
 }
 
 #' @export
+vec_equal_no_deref <- function(x, y, na_equal = FALSE, .ptype = NULL) {
+  args <- vec_recycle_common(x, y)
+  args <- vec_cast_common(!!!args, .to = .ptype)
+  .Call(
+    vctrs_equal_no_deref,
+    vec_proxy_equal(args[[1]]),
+    vec_proxy_equal(args[[2]]),
+    na_equal
+  )
+}
+#' @export
+vec_equal_no_branch <- function(x, y, na_equal = FALSE, .ptype = NULL) {
+  args <- vec_recycle_common(x, y)
+  args <- vec_cast_common(!!!args, .to = .ptype)
+  .Call(
+    vctrs_equal_no_branch,
+    vec_proxy_equal(args[[1]]),
+    vec_proxy_equal(args[[2]]),
+    na_equal
+  )
+}
+
+#' @export
 #' @rdname vec_equal
 vec_equal_na <- function(x) {
   x <- vec_proxy_equal(x)
