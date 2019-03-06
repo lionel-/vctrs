@@ -79,6 +79,10 @@ vec_equal_template_full <- function(x, y, na_equal = FALSE, .ptype = NULL) {
 vec_equal_template2 <- function(x, y, na_equal = FALSE, .ptype = NULL) {
   .Call(vctrs_equal_template2, x, y, na_equal)
 }
+#' @export
+vec_equal_template2_no_alias <- function(x, y, na_equal = FALSE, .ptype = NULL) {
+  .Call(vctrs_equal_template2_no_alias, x, y, na_equal)
+}
 
 #' @export
 #' @rdname vec_equal
