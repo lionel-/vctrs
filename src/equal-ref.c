@@ -59,9 +59,6 @@ void vctrs_inc(struct vctrs_ref* ref) {
 
 
 int equal_scalar_ref(struct vctrs_ref* x_ref, struct vctrs_ref* y_ref, bool na_equal) {
-  SEXP x = x_ref->object;
-  SEXP y = y_ref->object;
-
   if (x_ref->type != y_ref->type) {
     return false;
   }
@@ -86,14 +83,11 @@ int equal_scalar_ref(struct vctrs_ref* x_ref, struct vctrs_ref* y_ref, bool na_e
   case vctrs_type_list:
     Rf_error("TODO equal ref");
   default:
-    Rf_errorcall(R_NilValue, "Unsupported type %s", Rf_type2char(TYPEOF(x)));
+    Rf_errorcall(R_NilValue, "Unsupported type %s", Rf_type2char(TYPEOF(x_ref->object)));
   }
 }
 
 int equal_scalar_simple(struct vctrs_ref* x_ref, struct vctrs_ref* y_ref) {
-  SEXP x = x_ref->object;
-  SEXP y = y_ref->object;
-
   if (x_ref->type != y_ref->type) {
     return false;
   }
@@ -110,14 +104,11 @@ int equal_scalar_simple(struct vctrs_ref* x_ref, struct vctrs_ref* y_ref) {
   case vctrs_type_list:
     Rf_error("TODO equal ref");
   default:
-    Rf_errorcall(R_NilValue, "Unsupported type %s", Rf_type2char(TYPEOF(x)));
+    Rf_errorcall(R_NilValue, "Unsupported type %s", Rf_type2char(TYPEOF(x_ref->object)));
   }
 }
 
 int equal_scalar_propagate(struct vctrs_ref* x_ref, struct vctrs_ref* y_ref) {
-  SEXP x = x_ref->object;
-  SEXP y = y_ref->object;
-
   if (x_ref->type != y_ref->type) {
     return false;
   }
@@ -146,7 +137,7 @@ int equal_scalar_propagate(struct vctrs_ref* x_ref, struct vctrs_ref* y_ref) {
   case vctrs_type_list:
     Rf_error("TODO equal ref");
   default:
-    Rf_errorcall(R_NilValue, "Unsupported type %s", Rf_type2char(TYPEOF(x)));
+    Rf_errorcall(R_NilValue, "Unsupported type %s", Rf_type2char(TYPEOF(x_ref->object)));
   }
 }
 
