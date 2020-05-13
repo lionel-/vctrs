@@ -382,6 +382,10 @@ SEXP vec_slice_impl(SEXP x, SEXP subscript) {
     if (info.type == vctrs_type_scalar) {
       Rf_errorcall(R_NilValue, "Can't slice a scalar");
     }
+    if (vctrs_debug_verbose) {
+      Rprintf("Falling back to ``base::`[`()`` for class `%s`.\n",
+              r_chr_get_c_string(r_class(x), 0));
+    }
 
     if (is_compact(subscript)) {
       subscript = PROTECT_N(compact_materialize(subscript), &nprot);
