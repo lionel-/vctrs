@@ -326,7 +326,6 @@ test_that("slice-assign falls back to `[<-` when proxy is not implemented", {
 
   vec_ptype2(foobar(""), foobar(""))
   vec_cast(foobar(""), foobar(""))
-  #> Error: Can't cast <vctrs_foobar> to <vctrs_foobar>
 
   local_methods(
     `[<-.vctrs_foobar` = function(x, i, value) {
@@ -339,6 +338,7 @@ test_that("slice-assign falls back to `[<-` when proxy is not implemented", {
     vec_cast.vctrs_foobar = function(...) NULL,
     vec_cast.vctrs_foobar.logical = function(x, to, ...) foobar(rep("", length(x)))
   )
+  browser()
 
   obj <- foobar(c("foo", "bar", "baz"))
   vec_slice(obj, 1:2) <- TRUE
