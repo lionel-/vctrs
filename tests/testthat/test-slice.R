@@ -686,3 +686,29 @@ test_that("vec_slice() restores unrestored but named foreign classes", {
   expect_true(is_common_class_fallback(out))
   expect_identical(fallback_class(out), "vctrs_foobar")
 })
+
+test_that("vec_slice() falls back to `[` for data frame subclasses", {
+  df <- foobar(tibble::as_tibble(mtcars))
+
+  dispatched <- FALSE
+  local_methods(
+    `[.vctrs_foobar` = function(x, i, j, ...) {
+      dispatched <<- TRUE
+      NextMethod()
+    }
+  )
+
+  vec_slice(df, 1:3)
+  expect_true(dispatched)
+
+  # Implementing proxy disables the fallback
+  dispatched <- FALSE
+  local_methods(
+    `vec_proxy.vctrs_foobar` = function(x, ...) {
+      x
+    }
+  )
+
+  vec_slice(df, 1:3)
+  expect_false(dispatched)
+})

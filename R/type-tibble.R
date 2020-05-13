@@ -1,3 +1,9 @@
+
+#' @export
+vec_proxy.tbl_df <- function(x, ...) {
+  x
+}
+
 #' @rdname df_ptype2
 #' @export
 tib_ptype2 <- function(x, y, ..., x_arg = "", y_arg = "") {

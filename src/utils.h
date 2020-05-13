@@ -548,6 +548,7 @@ extern SEXP syms_stop_incompatible_size;
 extern SEXP syms_action;
 extern SEXP syms_vctrs_common_class_fallback;
 extern SEXP syms_fallback_class;
+extern SEXP syms_drop;
 
 static const char * const c_strs_vctrs_common_class_fallback = "vctrs:::common_class_fallback";
 

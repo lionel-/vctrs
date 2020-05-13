@@ -234,10 +234,53 @@ static SEXP vec_slice_dispatch(SEXP x, SEXP subscript) {
                          syms_i, subscript);
 }
 
+static
+SEXP vec_slice_dispatch_df(SEXP x, SEXP subscript) {
+  SEXP* syms = (SEXP[5]) { R_NilValue, R_NilValue, R_NilValue, syms_drop, NULL };
+  SEXP* args = (SEXP[5]) { syms_x, subscript, R_MissingArg, vctrs_shared_false, NULL };
+
+  SEXP call = PROTECT(r_call(Rf_install("["), syms, args));
+  SEXP mask = PROTECT(r_new_environment(vctrs_ns_env, 4));
+
+  Rf_defineVar(syms_x, x, mask);
+
+  SEXP out = Rf_eval(call, mask);
+
+  UNPROTECT(2);
+  return out;
+}
+
 bool vec_requires_fallback(SEXP x, struct vctrs_proxy_info info) {
-  return OBJECT(x) &&
-    info.proxy_method == R_NilValue &&
-    info.type != vctrs_type_dataframe;
+  if (!OBJECT(x)) {
+    return false;
+  }
+
+  SEXP class = PROTECT(Rf_getAttrib(x, R_ClassSymbol));
+
+  // Avoid corrupt objects where `x` is an OBJECT(), but the class is NULL
+  if (class == R_NilValue) {
+    return UNPROTECT(1), R_NilValue;
+  }
+
+  const SEXP* p_class = STRING_PTR_RO(class);
+  int n_class = Rf_length(class);
+
+  for (int i = 0; i < n_class; ++i) {
+    const char* x_class_str = CHAR(p_class[i]);
+
+    // `tbl_df` and `data.frame` and have proxy methods so we never
+    // use their `[` method, unless explicitly called by subclasses
+    // via `NextMethod()` calls in their own `[` methods
+    if (s3_get_method("vec_proxy", x_class_str, vctrs_method_table) != R_NilValue) {
+      return UNPROTECT(1), false;
+    }
+
+    if (s3_get_method("[", x_class_str, base_method_table) != R_NilValue) {
+      return UNPROTECT(1), true;
+    }
+  }
+
+  return UNPROTECT(1), false;
 }
 
 SEXP vec_slice_base(enum vctrs_type type, SEXP x, SEXP subscript) {
@@ -346,7 +389,9 @@ SEXP vec_slice_impl(SEXP x, SEXP subscript) {
 
     SEXP out;
 
-    if (has_dim(x)) {
+    if (info.type == vctrs_type_dataframe) {
+      out = PROTECT_N(vec_slice_dispatch_df(x, subscript), &nprot);
+    } else if (has_dim(x)) {
       out = PROTECT_N(vec_slice_fallback(x, subscript), &nprot);
     } else {
       out = PROTECT_N(vec_slice_dispatch(x, subscript), &nprot);
