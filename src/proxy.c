@@ -130,9 +130,86 @@ SEXP vec_proxy_invoke(SEXP x, SEXP method) {
 }
 
 
+SEXP df_restore_target_attrib = NULL;
+
+static
+SEXP new_df_restore_target(R_len_t n_col) {
+  SEXP out = PROTECT(r_new_list(2));
+  SET_ATTRIB(out, df_restore_target_attrib);
+
+  SEXP cols = PROTECT(r_new_list(n_col));
+  r_list_poke(out, 1, cols);
+
+  UNPROTECT(2);
+  return out;
+}
+// [[ include("proxy.h") ]]
+bool is_df_restore_target(SEXP x) {
+  return ATTRIB(x) == df_restore_target_attrib;
+}
+
+// [[ include("proxy.h") ]]
+SEXP vec_proxy_recursive(SEXP x, SEXP* target) {
+  SEXP proxy = PROTECT(vec_proxy(x));
+
+  if (!is_data_frame(proxy)) {
+    *target = x;
+    UNPROTECT(1);
+    return x;
+  }
+
+  proxy = PROTECT(r_clone_referenced(proxy));
+  R_len_t n = Rf_length(proxy);
+
+  SEXP df_target = PROTECT(new_df_restore_target(n));
+  SEXP df_target_cols = r_list_get(df_target, 1);
+
+  r_poke_names(df_target_cols, PROTECT(r_names(proxy)));
+  UNPROTECT(1);
+
+  r_list_poke(df_target, 0, x);
+
+  for (R_len_t i = 0; i < n; ++i) {
+    SEXP col_target = R_NilValue;
+    SEXP col = vec_proxy_recursive(r_list_get(proxy, i), &col_target);
+
+    r_list_poke(proxy, i, col);
+    r_list_poke(df_target_cols, i, col_target);
+  }
+
+  UNPROTECT(3);
+  *target = df_target;
+  return proxy;
+}
+// [[ register() ]]
+SEXP vctrs_proxy_recursive(SEXP x) {
+  SEXP target = R_NilValue;
+  SEXP proxy = vec_proxy_recursive(x, &target);
+  PROTECT2(proxy, target);
+
+  SEXP out = PROTECT(r_new_list(2));
+  r_list_poke(out, 0, proxy);
+  r_list_poke(out, 1, target);
+
+  SEXP nms = PROTECT(r_new_character(2));
+  r_chr_poke(nms, 0, r_str("proxy"));
+  r_chr_poke(nms, 1, r_str("target"));
+
+  r_poke_names(out, nms);
+
+  UNPROTECT(4);
+  return out;
+}
+
 void vctrs_init_data(SEXP ns) {
   syms_vec_proxy = Rf_install("vec_proxy");
   syms_vec_proxy_equal_dispatch = Rf_install("vec_proxy_equal_dispatch");
 
   fns_vec_proxy_equal_dispatch = r_env_get(ns, syms_vec_proxy_equal_dispatch);
+
+  const char* code = "structure(list(df = 1, cols = 2), class = 'vctrs:::df_restore_target')";
+  SEXP mold = PROTECT(r_parse_eval(code, R_BaseEnv));
+  df_restore_target_attrib = ATTRIB(mold);
+  R_PreserveObject(df_restore_target_attrib);
+  UNPROTECT(1);
 }

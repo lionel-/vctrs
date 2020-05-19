@@ -94,3 +94,28 @@ test_that("vec_proxy_equal() returns a POSIXct for POSIXlt objects (#901)", {
   x <- as.POSIXlt(new_date(0), tz = "UTC")
   expect_s3_class(vec_proxy_equal(x), "POSIXct")
 })
+
+test_that("vec_proxy_recursive() proxies recursively", {
+  x <- factor("a")
+  out <- vec_proxy_recursive(x)
+
+  expect_identical(out$proxy, vec_proxy(x))
+  expect_identical(out$target, x)
+
+  y <- as.POSIXlt("2020-02-02")
+  out <- vec_proxy_recursive(y)
+
+  expect_identical(out$proxy, vec_proxy(y))
+  expect_true(inherits(out$target, "vctrs:::df_restore_target"))
+  expect_identical(out$target$df, y)
+  expect_true(all(map2_lgl(out$target$cols, out$proxy, identical)))
+
+  df <- data_frame(x = x, y = y)
+  out <- vec_proxy_recursive(df)
+
+  expect_identical(out$proxy$x, vec_proxy(x))
+  expect_identical(out$proxy$y, vec_proxy(y))
+  expect_true(inherits(out$target, "vctrs:::df_restore_target"))
+  expect_identical(out$target$cols$x, x)
+  expect_true(all(map2_lgl(out$target$cols$y$cols, vec_proxy(y), identical)))
+})

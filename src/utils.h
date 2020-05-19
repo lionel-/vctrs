@@ -198,6 +198,15 @@ R_len_t r_chr_find(SEXP x, SEXP value);
 int r_chr_max_len(SEXP x);
 SEXP r_chr_iota(R_len_t n, char* buf, int len, const char* prefix);
 
+static inline
+SEXP r_new_list(R_len_t n) {
+  return Rf_allocVector(VECSXP, n);
+}
+static inline
+SEXP r_new_character(R_len_t n) {
+  return Rf_allocVector(STRSXP, n);
+}
+
 SEXP r_new_environment(SEXP parent, R_len_t size);
 SEXP r_new_function(SEXP formals, SEXP body, SEXP env);
 SEXP r_as_function(SEXP x, const char* arg);
@@ -269,6 +278,9 @@ static inline double r_dbl_get(SEXP x, R_len_t i) {
   return REAL(x)[i];
 }
 #define r_chr_get STRING_ELT
+#define r_list_get VECTOR_ELT
+#define r_chr_poke SET_STRING_ELT
+#define r_list_poke SET_VECTOR_ELT
 
 static inline void* r_vec_unwrap(SEXPTYPE type, SEXP x) {
   switch (type) {
@@ -378,6 +390,8 @@ static inline const void* vec_type_missing_value(enum vctrs_type type) {
 }
 
 void c_print_backtrace();
+
+SEXP r_parse_eval(const char* str, SEXP env);
 
 
 extern SEXP vctrs_ns_env;
