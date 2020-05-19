@@ -8,9 +8,10 @@ SEXP syms_vec_proxy_equal_dispatch = NULL;
 SEXP fns_vec_proxy_equal_dispatch = NULL;
 
 // Defined below
-SEXP vec_proxy_method(SEXP x);
-SEXP vec_proxy_invoke(SEXP x, SEXP method);
-static SEXP vec_proxy_unwrap(SEXP x);
+SEXP vec_proxy_method(SEXP);
+SEXP vec_proxy_invoke(SEXP, SEXP);
+static SEXP vec_proxy_unwrap(SEXP);
+static SEXP vec_proxy_kind_recursive(SEXP, enum vctrs_proxy_kind);
 
 
 // [[ register(); include("vctrs.h") ]]
@@ -32,7 +33,7 @@ SEXP vec_proxy(SEXP x) {
 
 // [[ register(); include("vctrs.h") ]]
 SEXP vec_proxy_equal(SEXP x) {
-  SEXP proxy = PROTECT(vec_proxy_recursive(x, vctrs_proxy_equal));
+  SEXP proxy = PROTECT(vec_proxy_kind_recursive(x, vctrs_proxy_equal));
 
   if (is_data_frame(proxy)) {
     // Flatten df-cols so we don't have to recurse to work with data
@@ -72,8 +73,8 @@ SEXP vec_proxy_equal_dispatch(SEXP x) {
   }
 }
 
-// [[ include("vctrs.h") ]]
-SEXP vec_proxy_recursive(SEXP x, enum vctrs_proxy_kind kind) {
+static
+SEXP vec_proxy_kind_recursive(SEXP x, enum vctrs_proxy_kind kind) {
   switch (kind) {
   case vctrs_proxy_default: x = vec_proxy(x); break;
   case vctrs_proxy_equal: x = vec_proxy_equal_dispatch(x); break;
@@ -86,7 +87,7 @@ SEXP vec_proxy_recursive(SEXP x, enum vctrs_proxy_kind kind) {
     R_len_t n = Rf_length(x);
 
     for (R_len_t i = 0; i < n; ++i) {
-      SEXP col = vec_proxy_recursive(VECTOR_ELT(x, i), kind);
+      SEXP col = vec_proxy_kind_recursive(VECTOR_ELT(x, i), kind);
       SET_VECTOR_ELT(x, i, col);
     }
 
@@ -98,7 +99,7 @@ SEXP vec_proxy_recursive(SEXP x, enum vctrs_proxy_kind kind) {
 }
 
 // [[ register() ]]
-SEXP vctrs_proxy_recursive(SEXP x, SEXP kind_) {
+SEXP vctrs_proxy_kind_recursive(SEXP x, SEXP kind_) {
   enum vctrs_proxy_kind kind;
   if (kind_ == Rf_install("default")) {
     kind = vctrs_proxy_default;
@@ -110,7 +111,7 @@ SEXP vctrs_proxy_recursive(SEXP x, SEXP kind_) {
     Rf_error("Internal error: Unexpected proxy kind `%s`.", CHAR(PRINTNAME(kind_)));
   }
 
-  return vec_proxy_recursive(x, kind);
+  return vec_proxy_kind_recursive(x, kind);
 }
 
 SEXP vec_proxy_method(SEXP x) {

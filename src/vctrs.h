@@ -358,7 +358,6 @@ enum vctrs_proxy_kind {
 
 SEXP vec_proxy(SEXP x);
 SEXP vec_proxy_equal(SEXP x);
-SEXP vec_proxy_recursive(SEXP x, enum vctrs_proxy_kind kind);
 SEXP vec_restore(SEXP x, SEXP to, SEXP i);
 SEXP vec_restore_default(SEXP x, SEXP to);
 R_len_t vec_size(SEXP x);
