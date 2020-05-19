@@ -201,6 +201,32 @@ SEXP vctrs_proxy_recursive(SEXP x) {
   return out;
 }
 
+SEXP vec_proxy_restore_recursive(SEXP x, SEXP to) {
+  if (!is_df_restore_target(to)) {
+    return vec_restore(x, to, R_NilValue);
+  }
+
+  SEXP cols_to = r_list_get(to, 1);
+  SEXP out = PROTECT(r_clone_referenced(x));
+  R_len_t n = Rf_length(out);
+
+  if (n != Rf_length(cols_to)) {
+    Rf_error("Internal error in `vec_proxy_restore_recursive()`: Unequal lengths.");
+  }
+
+  for (R_len_t i = 0; i < n; ++i) {
+    SEXP col = r_list_get(x, i);
+    SEXP col_to = r_list_get(cols_to, i);
+    r_list_poke(x, i, vec_restore(col, col_to, R_NilValue));
+  }
+
+  SEXP df_to = r_list_get(to, 0);
+  out = vec_restore(out, df_to, R_NilValue);
+
+  UNPROTECT(1);
+  return out;
+}
+
 void vctrs_init_data(SEXP ns) {
   syms_vec_proxy = Rf_install("vec_proxy");
   syms_vec_proxy_equal_dispatch = Rf_install("vec_proxy_equal_dispatch");
