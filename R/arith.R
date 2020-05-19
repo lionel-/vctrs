@@ -43,6 +43,7 @@ vec_arith <- function(op, x, y, ...) {
   if (!missing(...)) {
     ellipsis::check_dots_empty()
   }
+  return(.Call(vctrs_arith, op, x, y))
   UseMethod("vec_arith", x)
 }
 
