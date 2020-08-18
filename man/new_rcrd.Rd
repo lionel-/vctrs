@@ -6,7 +6,7 @@
 \alias{rcrd}
 \title{rcrd (record) S3 class}
 \usage{
-new_rcrd(fields, ..., class = character())
+new_rcrd(fields, ..., data = NULL, class = character())
 }
 \arguments{
 \item{fields}{A list or a data frame. Lists must be rectangular
@@ -15,6 +15,10 @@ one). \code{fields} is validated with \code{\link[=df_list]{df_list()}} which re
 columns to the same size.}
 
 \item{...}{Additional attributes}
+
+\item{data}{\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#experimental'><img src='figures/lifecycle-experimental.svg' alt='Experimental lifecycle'></a>}}{\strong{Experimental}} Optionally, a
+vector acting as the main data field. This is useful for
+implementing lists and data frames records.}
 
 \item{class}{Name of subclass.}
 }

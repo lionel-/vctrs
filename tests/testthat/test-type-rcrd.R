@@ -285,3 +285,10 @@ test_that("can resize with df-cols fields", {
   length(x) <- 4
   expect_identical(x, new_rcrd(data_frame(x = data_frame(y = c(1:2, NA, NA)))))
 })
+
+
+# list records ------------------------------------------------------------
+
+test_that("", {
+  x <- new_rcrd(list(x = 1:2), data = list(1, 2))
+})

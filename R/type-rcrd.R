@@ -13,27 +13,57 @@
 #'   one). `fields` is validated with [df_list()] which recycles
 #'   columns to the same size.
 #' @param ... Additional attributes
+#' @param data `r lifecycle::badge("experimental")` Optionally, a
+#'   vector acting as the main data field. This is useful for
+#'   implementing list records.
 #' @param class Name of subclass.
 #' @export
 #' @aliases ses rcrd
 #' @keywords internal
-new_rcrd <- function(fields, ..., class = character()) {
+new_rcrd <- function(fields, ..., data = NULL, class = character()) {
   fields <- df_list(!!!fields)
   if (!length(fields)) {
     abort("`fields` must be a list of length 1 or greater.")
   }
-  structure(fields, ..., class = c(class, "vctrs_rcrd", "vctrs_vctr"))
+
+  if (is_null(data)) {
+    structure(
+      fields,
+      ...,
+      class = c(class, "vctrs_rcrd", "vctrs_vctr")
+    )
+  } else {
+    stopifnot(vec_is_list(data))
+    structure(
+      data,
+      ...,
+      fields = fields,
+      class = c(class, "vctrs_rcrd", "vctrs_vctr", "list")
+    )
+  }
 }
 
 #' @export
 vec_proxy.vctrs_rcrd <- function(x, ...) {
-  new_data_frame(unclass(x))
+  fields <- attr(x, "fields")
+
+  if (is_null(fields)) {
+    new_data_frame(unclass(x))
+  } else {
+    fields <- new_data_frame(fields)
+    data_frame(data = x, fields = fields)
+  }
 }
 #' @export
 vec_restore.vctrs_rcrd <- function(x, to, ...) {
-  x <- NextMethod()
-  attr(x, "row.names") <- NULL
-  x
+  out <- NextMethod()
+  attr(out, "row.names") <- NULL
+
+  if (is_null(attr(to, "fields"))) {
+    out
+  } else {
+    new_rcrd(x$fields, data = x$data)
+  }
 }
 
 #' @export
