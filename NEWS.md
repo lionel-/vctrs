@@ -1,6 +1,12 @@
 
 # vctrs (development version)
 
+* `vec_data()` now preserves data frames. This is consistent with the
+  notion that data frames are a primitive vector type in vctrs. This
+  shouldn't affect code that uses `[[` and `length()` to manipulate
+  the data. On the other hand, the vctrs primitives like `vec_slice()`
+  will now operate rowwise when `vec_data()` returns a data frame.
+
 * The restriction that S3 lists must have a list-based proxy to be considered
   lists by `vec_is_list()` has been removed (#1208).
 
