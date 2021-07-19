@@ -57,6 +57,7 @@
 NULL
 
 stop_vctrs <- function(message = NULL, class = NULL, ...) {
+  .error_call <- FALSE
   abort(message, class = c(class, "vctrs_error"), ...)
 }
 
@@ -66,6 +67,7 @@ stop_incompatible <- function(x,
                               details = NULL,
                               message = NULL,
                               class = NULL) {
+  .error_call <- FALSE
   stop_vctrs(
     message,
     class = c(class, "vctrs_error_incompatible"),
@@ -107,6 +109,7 @@ stop_incompatible_type <- function(x,
     from_dispatch = match_from_dispatch(...)
   )
 
+  .error_call <- FALSE
   stop_incompatible(
     x, y,
     x_arg = x_arg,
@@ -128,6 +131,7 @@ stop_incompatible_cast <- function(x,
                                    details = NULL,
                                    message = NULL,
                                    class = NULL) {
+  .error_call <- FALSE
   stop_incompatible_type(
     x = x,
     y = to,
@@ -142,6 +146,7 @@ stop_incompatible_cast <- function(x,
 }
 
 stop_incompatible_shape <- function(x, y, x_size, y_size, axis, x_arg, y_arg) {
+  .error_call <- FALSE
   details <- format_error_bullets(c(
     x = glue::glue("Incompatible sizes {x_size} and {y_size} along axis {axis}.")
   ))
@@ -262,11 +267,12 @@ cnd_type_message_df_label <- function(x) {
 #' @rdname vctrs-conditions
 #' @export
 stop_incompatible_op <- function(op, x, y, details = NULL, ..., message = NULL, class = NULL) {
-
   message <- message %||% glue_lines(
     "<{vec_ptype_full(x)}> {op} <{vec_ptype_full(y)}> is not permitted",
     details
   )
+
+  .error_call <- FALSE
 
   stop_incompatible(
     x, y,
@@ -290,6 +296,7 @@ stop_incompatible_size <- function(x,
                                    details = NULL,
                                    message = NULL,
                                    class = NULL) {
+  .error_call <- FALSE
   stop_incompatible(
     x,
     y,
@@ -399,6 +406,7 @@ maybe_lossy_cast <- function(result, x, to,
 
   locations <- locations %||% which(lossy)
 
+  .error_call <- FALSE
   withRestarts(
     vctrs_restart_error_cast_lossy = function() result,
     stop_lossy_cast(
@@ -425,6 +433,7 @@ stop_lossy_cast <- function(x, to, result,
                             details = NULL,
                             message = NULL,
                             class = NULL) {
+  .error_call <- FALSE
   stop_vctrs(
     message,
     x = x,
@@ -557,6 +566,7 @@ maybe_warn_deprecated_lossy_cast <- function(x, to, loss_type, x_arg, to_arg) {
 }
 
 stop_unsupported <- function(x, method) {
+  .error_call <- FALSE
   msg <- glue::glue("`{method}.{class(x)[[1]]}()` not supported.")
   stop_vctrs(
     "vctrs_error_unsupported",
@@ -567,6 +577,7 @@ stop_unsupported <- function(x, method) {
 }
 
 stop_unimplemented <- function(x, method) {
+  .error_call <- FALSE
   msg <- glue::glue("`{method}.{class(x)[[1]]}()` not implemented.")
   stop_vctrs(
     "vctrs_error_unimplemented",
@@ -577,6 +588,7 @@ stop_unimplemented <- function(x, method) {
 }
 
 stop_scalar_type <- function(x, arg = NULL) {
+  .error_call <- FALSE
   if (is_null(arg) || !nzchar(arg)) {
     arg <- "Input"
   } else {
@@ -587,16 +599,19 @@ stop_scalar_type <- function(x, arg = NULL) {
 }
 
 stop_corrupt_factor_levels <- function(x, arg = "x") {
+  .error_call <- FALSE
   msg <- glue::glue("`{arg}` is a corrupt factor with non-character levels")
   abort(msg)
 }
 
 stop_corrupt_ordered_levels <- function(x, arg = "x") {
+  .error_call <- FALSE
   msg <- glue::glue("`{arg}` is a corrupt ordered factor with non-character levels")
   abort(msg)
 }
 
 stop_recycle_incompatible_size <- function(x_size, size, x_arg = "x") {
+  .error_call <- FALSE
   stop_vctrs(
     x_size = x_size,
     y_size = size,
@@ -610,6 +625,7 @@ stop_recycle_incompatible_size <- function(x_size, size, x_arg = "x") {
 # Names -------------------------------------------------------------------
 
 stop_names <- function(class = NULL, ...) {
+  .error_call <- FALSE
   stop_vctrs(
     class = c(class, "vctrs_error_names"),
     ...
@@ -617,6 +633,7 @@ stop_names <- function(class = NULL, ...) {
 }
 
 stop_names_cannot_be_empty <- function(names) {
+  .error_call <- FALSE
   stop_names(
     class = "vctrs_error_names_cannot_be_empty",
     names = names
@@ -643,6 +660,7 @@ cnd_body.vctrs_error_names_cannot_be_empty <- function(cnd, ...) {
 }
 
 stop_names_cannot_be_dot_dot <- function(names) {
+  .error_call <- FALSE
   stop_names(
     class = "vctrs_error_names_cannot_be_dot_dot",
     names = names
@@ -676,6 +694,7 @@ cnd_body.vctrs_error_names_cannot_be_dot_dot <- function(cnd, ...) {
 }
 
 stop_names_must_be_unique <- function(names, arg = "") {
+  .error_call <- FALSE
   stop_names(
     class = "vctrs_error_names_must_be_unique",
     arg = arg,
@@ -752,6 +771,7 @@ ensure_full_stop <- function(x) {
 
 
 stop_native_implementation <- function(fn) {
+  .error_call <- FALSE
   abort(paste_line(
     glue::glue("`{fn}()` is implemented at C level."),
     "This R function is purely indicative and should never be called."

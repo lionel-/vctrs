@@ -207,6 +207,10 @@ static SEXP vctrs_eval_mask_n_impl(SEXP fn_sym, SEXP fn, SEXP* syms, SEXP* args,
   }
 
   SEXP body = PROTECT(r_call_n(fn, syms, syms));
+
+  SEXP flag = PROTECT(r_parse(".error_call <- FALSE"));
+  body = PROTECT(r_call3(r_sym("{"), flag, body));
+
   SEXP call_fn = PROTECT(r_new_function(R_NilValue, body, mask));
   SEXP call = PROTECT(Rf_lang1(call_fn));
 
@@ -217,7 +221,7 @@ static SEXP vctrs_eval_mask_n_impl(SEXP fn_sym, SEXP fn, SEXP* syms, SEXP* args,
 
   SEXP out = Rf_eval(call, env);
 
-  UNPROTECT(4);
+  UNPROTECT(6);
   return out;
 }
 

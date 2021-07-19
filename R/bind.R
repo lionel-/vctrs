@@ -174,6 +174,7 @@ vec_rbind <- function(...,
                       .names_to = rlang::zap(),
                       .name_repair = c("unique", "universal", "check_unique"),
                       .name_spec = NULL) {
+  .error_call <- FALSE
   .External2(vctrs_rbind, .ptype, .names_to, .name_repair, .name_spec)
 }
 vec_rbind <- fn_inline_formals(vec_rbind, ".name_repair")
@@ -189,14 +190,17 @@ vec_cbind <- function(...,
                       .ptype = NULL,
                       .size = NULL,
                       .name_repair = c("unique", "universal", "check_unique", "minimal")) {
+  .error_call <- FALSE
   .External2(vctrs_cbind, .ptype, .size, .name_repair)
 }
 vec_cbind <- fn_inline_formals(vec_cbind, ".name_repair")
 
 as_df_row <- function(x, quiet = FALSE) {
+  .error_call <- FALSE
   .Call(vctrs_as_df_row, x, quiet)
 }
 as_df_col <- function(x, outer_name) {
+  .error_call <- FALSE
   .Call(vctrs_as_df_col, x, outer_name)
 }
 

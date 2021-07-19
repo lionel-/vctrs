@@ -31,6 +31,7 @@ vec_ptype2 <- function(x, y, ..., x_arg = "", y_arg = "") {
   if (!missing(...)) {
     check_ptype2_dots_empty(...)
   }
+  .error_call <- FALSE
   return(.Call(vctrs_ptype2, x, y, x_arg, y_arg))
   UseMethod("vec_ptype2")
 }
@@ -39,6 +40,7 @@ vec_ptype2_dispatch_s3 <- function(x, y, ..., x_arg = "", y_arg = "") {
 }
 
 vec_ptype2_dispatch_native <- function(x, y, ..., x_arg = "", y_arg = "") {
+  .error_call <- FALSE
   fallback_opts <- match_fallback_opts(...)
   .Call(vctrs_ptype2_dispatch_native, x, y, fallback_opts, x_arg, y_arg)
 }
@@ -68,12 +70,19 @@ vec_ptype2_dispatch_native <- function(x, y, ..., x_arg = "", y_arg = "") {
 #'
 #' @keywords internal
 #' @export
-vec_default_ptype2 <- function(x, y, ..., x_arg = "", y_arg = "") {
+vec_default_ptype2 <- function(x,
+                               y,
+                               ...,
+                               x_arg = "",
+                               y_arg = "",
+                               call = caller_env()) {
+  .error_call <- call
+
   if (is_asis(x)) {
-    return(vec_ptype2_asis_left(x, y, x_arg = x_arg, y_arg = y_arg))
+    return(vec_ptype2_asis_left(x, y, x_arg = x_arg, y_arg = y_arg, call = call))
   }
   if (is_asis(y)) {
-    return(vec_ptype2_asis_right(x, y, x_arg = x_arg, y_arg = y_arg))
+    return(vec_ptype2_asis_right(x, y, x_arg = x_arg, y_arg = y_arg, call = call))
   }
 
   opts <- match_fallback_opts(...)
@@ -115,7 +124,8 @@ vec_default_ptype2 <- function(x, y, ..., x_arg = "", y_arg = "") {
     y,
     x_arg = x_arg,
     y_arg = y_arg,
-    `vctrs:::from_dispatch` = match_from_dispatch(...)
+    `vctrs:::from_dispatch` = match_from_dispatch(...),
+    call = call
   )
 }
 

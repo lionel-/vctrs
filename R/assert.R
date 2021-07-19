@@ -70,7 +70,13 @@
 #'   throws a typed error (see section on error types) or returns `x`,
 #'   invisibly.
 #' @export
-vec_assert <- function(x, ptype = NULL, size = NULL, arg = as_label(substitute(x))) {
+vec_assert <- function(x,
+                       ptype = NULL,
+                       size = NULL,
+                       arg = as_label(substitute(x)),
+                       call = FALSE) {
+  .error_call <- call
+
   if (!vec_is_vector(x)) {
     stop_scalar_type(x, arg)
   }

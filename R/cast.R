@@ -66,6 +66,7 @@ vec_cast <- function(x, to, ..., x_arg = "", to_arg = "") {
   if (!missing(...)) {
     check_ptype2_dots_empty(...)
   }
+  .error_call <- FALSE
   return(.Call(vctrs_cast, x, to, x_arg, to_arg))
   UseMethod("vec_cast", to)
 }
@@ -74,9 +75,11 @@ vec_cast_dispatch <- function(x, to, ..., x_arg = "", to_arg = "") {
 }
 
 vec_cast_no_fallback <- function(x, to) {
+  .error_call <- FALSE
   vec_cast_common_params(x = x, .to = to, .df_fallback = DF_FALLBACK_none)$x
 }
 vec_cast_dispatch_native <- function(x, to, ..., x_arg = "", to_arg = "") {
+  .error_call <- FALSE
   fallback_opts <- match_fallback_opts(...)
   .Call(vctrs_cast_dispatch_native, x, to, fallback_opts, x_arg, to_arg)
 }
@@ -84,17 +87,20 @@ vec_cast_dispatch_native <- function(x, to, ..., x_arg = "", to_arg = "") {
 #' @export
 #' @rdname vec_cast
 vec_cast_common <- function(..., .to = NULL) {
+  .error_call <- FALSE
   .External2(vctrs_cast_common, .to)
 }
 vec_cast_common_opts <- function(...,
                                  .to = NULL,
                                  .opts = fallback_opts()) {
+  .error_call <- FALSE
   .External2(vctrs_cast_common_opts, .to, .opts)
 }
 vec_cast_common_params <- function(...,
                                    .to = NULL,
                                    .df_fallback = NULL,
                                    .s3_fallback = NULL) {
+  .error_call <- FALSE
   opts <- fallback_opts(
     df_fallback = .df_fallback,
     s3_fallback = .s3_fallback
@@ -102,6 +108,7 @@ vec_cast_common_params <- function(...,
   vec_cast_common_opts(..., .to = .to, .opts = opts)
 }
 vec_cast_common_fallback <- function(..., .to = NULL) {
+  .error_call <- FALSE
   vec_cast_common_opts(..., .to = .to, .opts = full_fallback_opts())
 }
 
@@ -109,6 +116,8 @@ vec_cast_common_fallback <- function(..., .to = NULL) {
 #' @inheritParams vec_cast
 #' @export
 vec_default_cast <- function(x, to, ..., x_arg = "", to_arg = "") {
+  .error_call <- FALSE
+
   if (is_asis(x)) {
     return(vec_cast_from_asis(x, to, x_arg = x_arg, to_arg = to_arg))
   }

@@ -9,7 +9,7 @@ Message: New names:
 [1] "x...1" "x...2"
 
 > vec_as_names(c("x", "x"), repair = "check_unique", repair_arg = "repair")
-Error: Names must be unique.
+Error in validate_unique(): Names must be unique.
 x These names are duplicated:
   * "x" at locations 1 and 2.
 i Use argument `repair` to specify repair strategy.
